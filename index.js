@@ -18,7 +18,7 @@ app.use((req, res, next) => {
   if (token != null) {
     token = token.replace("Bearer ", "");
 
-    jwt.verify(token, "nt-secret-89!", (err, decoded) => {
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
       if (err) {
         res.status(401).json({ message: "Invalid token" });
       } else {

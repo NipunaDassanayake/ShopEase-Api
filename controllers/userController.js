@@ -1,6 +1,7 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
 export function registerUser(req, res) {
   const data = req.body;
@@ -30,13 +31,16 @@ export function loginUser(req, res) {
     } else {
       const isPasswordValid = bcrypt.compareSync(data.password, user.password);
       if (isPasswordValid) {
-        const token = jwt.sign({
-          firstName : user.firstName,
-          lastName : user.lastName,
-          email :user.email,
-          role : user.role
-        },"nt-secret-89!")
-        res.json({ message: "Login succesfull" ,token : token});
+        const token = jwt.sign(
+          {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            role: user.role,
+          },
+          process.env.JWT_SECRET
+        );
+        res.json({ message: "Login succesfull", token: token });
       } else {
         res.status(401).json({ error: "Login failed" });
       }
