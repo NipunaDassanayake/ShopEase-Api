@@ -2,6 +2,7 @@ import User from "../models/user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import e from "express";
 
 export function registerUser(req, res) {
   const data = req.body;
@@ -9,15 +10,29 @@ export function registerUser(req, res) {
   data.password = bcrypt.hashSync(data.password, 10); // hashing password using bycrypt
 
   const newUser = new User(data);
-
-  newUser
-    .save()
-    .then(() => {
-      res.json({ message: "User registered succesfully" });
-    })
-    .catch((error) => {
-      res.status(500).json({ message: "User registration failed", error });
-    });
+  if (req.user.role === "admin") {
+    newUser
+      .save()
+      .then(() => {
+        res.json({ message: "User created successfully" });
+      })
+      .catch((error) => {
+        res.status(500).json({ message: "User creation failed", error });
+      });
+  } else {
+    if (newUser.role === "admin") {
+      res.status(401).json({ message: "Unauthorized to create admin account" });
+    } else {
+      newUser
+        .save()
+        .then(() => {
+          res.json({ message: "User created successfully" });
+        })
+        .catch((error) => {
+          res.status(500).json({ message: "User creation failed", error });
+        });
+    }
+  }
 }
 
 export function loginUser(req, res) {
