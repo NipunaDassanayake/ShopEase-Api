@@ -1,41 +1,33 @@
+import e from "express";
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
+const reviewSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
     unique: true,
   },
-
-  password: {
+  name: {
     type: String,
     required: true,
   },
-
-  role: {
-    type: String,
+  rating: {
+    type: Number,
     required: true,
-    default: "customer",
   },
-
-  firstName: {
+  comment: {
     type: String,
     required: true,
   },
-
-  lastName: {
-    type: String,
+  date: {
+    type: Date,
     required: true,
+    default: Date.now,
   },
-
-  address: {
-    type: String,
+  isApproved: {
+    type: Boolean,
     required: true,
-  },
-
-  phone: {
-    type: String,
-    required: true,
+    default: false,
   },
   profilePicture: {
     type: String,
@@ -45,6 +37,6 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-const User = mongoose.model("User", userSchema);
+const Review = mongoose.model("Review", reviewSchema);
 
-export default User;
+export default Review;
