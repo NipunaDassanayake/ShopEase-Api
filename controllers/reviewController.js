@@ -47,6 +47,10 @@ export function getAllReviews(req, res) {
 }
 
 export function getReviewById(req, res) {
+  if (req.user == null) {
+    res.status(401).json({ message: "please login and try again" });
+    return;
+  }
   const id = req.params.id;
   Review.findById(id)
     .then((review) => {
@@ -58,20 +62,26 @@ export function getReviewById(req, res) {
 }
 
 export function deleteReview(req, res) {
-  const id = req.params.id;
-  if(req.user.id != id && req.user.role != "admin"){
-    res.status(401).json({ message: "You are not authorized to delete this review" });
+  if (req.user == null) {
+    res.status(401).json({ message: "please login and try again" });
     return;
-  }else{
-    Review.findByIdAndDelete(id)
-    .then(() => {
-      res.json({ message: "Review deleted successfully" });
-    })
-    .catch((error) => {
-      res.status(500).json({ message: "Review deletion failed", error });
-    });
   }
-  
+  const id = req.params.id;
+  if (req.user.id != id && req.user.role != "admin") {
+    res
+      .status(401)
+      .json({ message: "You are not authorized to delete this review" });
+    return;
+  } else {
+    Review.findByIdAndDelete(id)
+      .then(() => {
+        res.json({ message: "Review deleted successfully" });
+      })
+      .catch((error) => {
+        res.status(500).json({ message: "Review deletion failed", error });
+      });
+  }
+
   // if (req.user.email != email && req.user.role != "admin") {
   //   res.status(401).json({ message: "You are not authorized to delete this review" });
   //   return;
@@ -83,23 +93,28 @@ export function deleteReview(req, res) {
   //     .catch((error) => {
   //       res.status(500).json({ message: "Review deletion failed", error });
   //     });
-  
 }
 
 export function approveReview(req, res) {
+  if (req.user == null) {
+    res.status(401).json({ message: "please login and try again" });
+    return;
+  }
   const id = req.params.id;
 
-  if(req.user.role != "admin"){
-    res.status(401).json({ message: "You are not authorized to approve this review" });
+  if (req.user.role != "admin") {
+    res
+      .status(401)
+      .json({ message: "You are not authorized to approve this review" });
     return;
-  }else{
+  } else {
     Review.findByIdAndUpdate(id, { isApproved: true }) // setting isApproved to true
-    .then(() => {
-      res.json({ message: "Review approved successfully" });
-    })
-    .catch((error) => {
-      res.status(500).json({ message: "Review approval failed", error });
-    });
+      .then(() => {
+        res.json({ message: "Review approved successfully" , id});
+      })
+      .catch((error) => {
+        res.status(500).json({ message: "Review approval failed", error });
+      });
   }
   // Review.findByIdAndUpdate(id, { isApproved: true })
   //   .then(() => {
@@ -111,18 +126,24 @@ export function approveReview(req, res) {
 }
 
 export function rejectReview(req, res) {
-  const id = req.params.id;
-  if(req.user.role != "admin"){
-    res.status(401).json({ message: "You are not authorized to reject this review" });
+  if (req.user == null) {
+    res.status(401).json({ message: "please login and try again" });
     return;
-  }else{
+  }
+  const id = req.params.id;
+  if (req.user.role != "admin") {
+    res
+      .status(401)
+      .json({ message: "You are not authorized to reject this review" });
+    return;
+  } else {
     Review.findByIdAndUpdate(id, { isApproved: false }) // setting isApproved to false
-    .then(() => {
-      res.json({ message: "Review rejected successfully" });
-    })
-    .catch((error) => {
-      res.status(500).json({ message: "Review rejection failed", error });
-    });
+      .then(() => {
+        res.json({ message: "Review rejected successfully" });
+      })
+      .catch((error) => {
+        res.status(500).json({ message: "Review rejection failed", error });
+      });
   }
   // Review.findByIdAndUpdate(id, { isApproved: false }) // setting isApproved to false
   //   .then(() => {
