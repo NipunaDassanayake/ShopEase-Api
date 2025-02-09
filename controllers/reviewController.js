@@ -23,28 +23,40 @@ export function createReview(req, res) {
     });
 }
 
-export function getAllReviews(req, res) {
+export async function getAllReviews(req, res) {
   const user = req.user;
   console.log(user);
 
-  if (!user || user.role != "admin") {
-    Review.find({ isApproved: true })
-      .then((reviews) => {
-        res.json({ reviews });
-      })
-      .catch((error) => {
-        res.status(500).json({ message: "failed to retrive reviews", error });
-      });
-  } else {
-    Review.find()
-      .then((reviews) => {
-        res.json({ reviews });
-      })
-      .catch((error) => {
-        res.status(500).json({ message: "failed to retrive reviews", error });
-      });
+  try {
+    if (!user || user.role != "admin") {
+      const reviews = await Review.find({ isApproved: true });
+      res.json({ reviews });
+    } else {
+      const reviews = await Review.find();
+      res.json({ reviews });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "failed to retrive reviews", error });
   }
 }
+
+// // if (!user || user.role != "admin") {
+// //   Review.find({ isApproved: true })
+// //     .then((reviews) => {
+// //       res.json({ reviews });
+// //     })
+// //     .catch((error) => {
+// //       res.status(500).json({ message: "failed to retrive reviews", error });
+// //     });
+// // } else {
+// //   Review.find()
+// //     .then((reviews) => {
+// //       res.json({ reviews });
+// //     })
+// //     .catch((error) => {
+// //       res.status(500).json({ message: "failed to retrive reviews", error });
+// //     });
+// }
 
 export function getReviewById(req, res) {
   if (req.user == null) {
@@ -110,7 +122,7 @@ export function approveReview(req, res) {
   } else {
     Review.findByIdAndUpdate(id, { isApproved: true }) // setting isApproved to true
       .then(() => {
-        res.json({ message: "Review approved successfully" , id});
+        res.json({ message: "Review approved successfully", id });
       })
       .catch((error) => {
         res.status(500).json({ message: "Review approval failed", error });
