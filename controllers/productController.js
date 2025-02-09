@@ -1,6 +1,6 @@
 import Product from "../models/products.js";
 
-export function createProduct(req, res) {
+export async function createProduct(req, res) {
   console.log(req.user);
 
   if (req.user == null) {
@@ -16,14 +16,12 @@ export function createProduct(req, res) {
 
   const data = req.body;
   const newProduct = new Product(data);
-  newProduct
-    .save()
-    .then(() => {
-      res.json({ message: "Product created successfully" });
-    })
-    .catch((error) => {
-      res.status(500).json({ message: "Product creation failed", error });
-    });
+  try {
+    await newProduct.save();
+    res.json({ message: "Product created successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "failed to create product", error });
+  }
 }
 
 export function getAllProducts(req, res) {
@@ -45,4 +43,31 @@ export function getProductById(req, res) {
     .catch((error) => {
       res.status(500).json({ message: "failed to retrive product", error });
     });
+}
+
+
+export async function updateProduct(req, res) {
+  const id = req.params.id;
+  const data = req.body;
+ 
+  try {
+    const product = await Product.findById(id);
+    if (!product) {
+      res.status(404).json({ message: "Product not found" });
+      return;
+    } else {
+      product.name = data.name || product.name;
+      product.price = data.price || product.price;
+      product.category = data.category || product.category;
+      product.brand = data.brand || product.brand;
+      product.countInStock = data.countInStock || product.countInStock;
+      product.description = data.description || product.description;
+      product.image = data.image || product.image;
+      
+      await product.save();
+    }
+  } catch (error) {
+    
+    res.status(500).json({ message: "failed to update product", error });
+  }
 }
