@@ -52,6 +52,7 @@ export function loginUser(req, res) {
             email: user.email,
             role: user.role,
             profilePicture: user.profilePicture,
+            phone: user.phone,
           },
           process.env.JWT_SECRET
         );
@@ -82,4 +83,33 @@ export function getUserById(req, res) {
     .catch((error) => {
       res.status(500).json({ message: "failed to retrive user", error });
     });
+}
+
+export function checkLogin(req){
+  if (req.user == null) {
+    res.status(401).json({ message: "please login and try again" });
+    return;
+  }
+}
+
+export function isItAdmin(req){
+  let isAdmin = false;
+
+   if(req.user != null){
+     if(req.user.role === "admin"){
+       isAdmin = true;
+     }
+   }
+   return isAdmin;
+}
+
+export function isItCustomer(req){
+  let isCustomer = false;
+
+   if(req.user != null){
+     if(req.user.role === "customer"){
+       isCustomer = true;
+     }
+   }
+   return isCustomer;
 }
